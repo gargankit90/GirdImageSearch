@@ -1,0 +1,42 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${packageName}.${activityClass}" >
+
+    <EditText
+        android:id="@+id/etQuery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:ems="10"
+        android:hint="@string/searchHint" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/btnSearch"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/etQuery"
+        android:text="@string/search" />
+
+    <GridView
+        android:id="@+id/gvResults"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/btnSearch"
+        android:layout_marginLeft="18dp"
+        android:numColumns="auto_fit"
+        android:horizontalSpacing="10dp"
+        android:verticalSpacing="10dp"
+        android:columnWidth="120dp"
+        android:stretchMode="spacingWidthUniform">
+    </GridView>
+
+</RelativeLayout>
