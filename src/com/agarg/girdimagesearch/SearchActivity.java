@@ -1,13 +1,28 @@
 package com.agarg.girdimagesearch;
 
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
 
 import com.agarg.adapter.ImageResultArrayAdapter;
 import com.agarg.model.ImageResult;
@@ -17,25 +32,9 @@ import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.Toast;
-
 public class SearchActivity extends Activity {
 	EditText etQuery;
+	SearchView searchView;
 	Button btnSearch;
 	GridView gvResults;
 	ArrayList<ImageResult> imageResults = new ArrayList<ImageResult>();
@@ -110,10 +109,67 @@ public class SearchActivity extends Activity {
 		});
     }
 	
-    public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main_menu, menu);
-		return true;
-	};
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//		getMenuInflater().inflate(R.menu.main_menu, menu);
+//		return true;
+//	};
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main_menu, menu);
+	    MenuItem searchItem = menu.findItem(R.id.action_search);
+	    searchView = (SearchView) searchItem.getActionView();
+	    searchView.setOnQueryTextListener(new OnQueryTextListener() {
+	       @Override
+	       public boolean onQueryTextSubmit(String query) {
+	            // perform query here
+	    	   Log.d("Search submit #################", query);
+				settings.setQuery(query);
+				settings.setStart(0);
+				String reqUrl = settings.getRequestUrl();
+				Log.d("Search Application","hitting google with"+reqUrl);
+				AsyncHttpClient httpClient = new AsyncHttpClient();
+				httpClient.addHeader("Referer", "GridImageSearch");
+				httpClient.get(reqUrl, new JsonHttpResponseHandler(){
+
+					@Override
+					public void onSuccess(JSONObject response) {
+						JSONArray imageJSONResults = null;
+						JSONArray responsePages = null;
+						int currentPageIndex;
+						try {
+							imageJSONResults = response.getJSONObject("responseData").getJSONArray("results");
+							imageResults.clear();
+							imageAdapter.addAll(ImageResult.fromJSONArray(imageJSONResults));
+							Log.d(TAG, imageResults.toString());
+							responsePages = response.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
+							currentPageIndex = response.getJSONObject("responseData").getJSONObject("cursor").getInt("currentPageIndex");
+							Log.d("#################current page index",currentPageIndex+"" );
+							currentPageIndex++;
+							Log.d("#################updated current page index",currentPageIndex+"" );
+							if(currentPageIndex < responsePages.length()){
+					
+								settings.setStart(responsePages.getJSONObject(currentPageIndex).getInt("start"));
+								Log.d("#####################updated start",settings.getStart()+"");
+							}
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+				});
+	            return true;
+	       }
+
+	       @Override
+	       public boolean onQueryTextChange(String newText) {
+	           return false;
+	       }
+	   });
+	   return super.onCreateOptionsMenu(menu);
+	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
