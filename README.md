@@ -10,10 +10,11 @@ Required:User can configure advanced search filters and be persistent across app
 Required:Subsequent searches will have any filters applied to the search results
 Required:User can tap on any image in results to see the image full-screen
 Required:User can scroll down “infinitely” to continue loading more image results (up to 8 pages)
-
+Optional: Advanced: Use the ActionBar SearchView or custom layout as the query box instead of an EditText
 Notes:
 
 Spent some time learning infinte scroll and how Adapters work in listview and Gridview.
+Storing complex data in preferences using gson library.
 
 Walkthrough of all user stories:
 
